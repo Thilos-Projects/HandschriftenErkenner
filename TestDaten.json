@@ -1,8 +1,4 @@
 {
-	"dataSet":[
-		{	
-			"dataMarking":"Tom",
-			"dataPath":"tom_handschrift.jpeg"
-		}
+	dataSet:[
 	]
 }
