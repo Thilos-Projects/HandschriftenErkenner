@@ -1,7 +1,8 @@
+from random import Random
 import sys
 import os
 
-from noise import pnoise2, snoise2
+import noise
 from PIL import Image
 import numpy as np 
 from perlin_noise import PerlinNoise
@@ -40,48 +41,76 @@ class IndexOrganizer:
 
 testIndex = IndexOrganizer(os.path.join(os.getcwd(),"TestDaten.json"))
     
-def doMainImage(inputPath,outputPath,scaleHeight,verhältnis,dictionarryName):
-    imageS0 = Image.open(inputPath).resize((scaleHeight,int(scaleHeight*verhältnis)))
-    outputPath = os.path.join(outputPath,dictionarryName + "_" + str(testIndex.getNextIndex(dictionarryName)) + ".jpg")
-    imageS0.save(outputPath)
-    testIndex.addData(name=dictionarryName,dataPath=outputPath)
+def saveImage(image,dirName,outPath):
+    outputPath = os.path.join(outPath,dirName + "_" + str(testIndex.getNextIndex(dirName)) + ".jpg")
+    image.save(outputPath)
+    testIndex.addData(name=dirName,dataPath=outputPath)
 
-def doPixelation(inputPath,outputPath,scaleHeight,verhältnis,dictionarryName):
+def doImage(inputPath,outputPath,scaleHeight,verhältnis,dictionarryName):
     imageS0 = Image.open(inputPath)
+    imageS0 = imageS0.resize((scaleHeight,int(scaleHeight*verhältnis)))
 
-    noise1 = PerlinNoise(octaves = 3, seed = 1)
+    noise0 = Random()
 
     imgWidth = imageS0.width
     imgHeight = imageS0.height
 
-    pix = np.array(imageS0)
+    pix0 = np.array(imageS0)
+    imageS0 = Image.fromarray(pix0)
+    saveImage(image=imageS0,dirName=dictionarryName,outPath=outputPath)
 
-    print(pix.shape)
+    pix1 = np.array(pix0)
+    pix2 = np.array(pix0)
+    pix3 = np.array(pix0)
+    pix4 = np.array(pix0)
+    pix5 = np.array(pix0)
+    pix6 = np.array(pix0)
+    pix7 = np.array(pix0)
+    pix8 = np.array(pix0)
+    pix9 = np.array(pix0)
+
+    noise00 = PerlinNoise(octaves = 12, seed = noise0.randint( 0, 999999))
+    noise01 = PerlinNoise(octaves = 24, seed = noise0.randint( 0, 999999))
+    noise10 = PerlinNoise(octaves = 12, seed = noise0.randint( 0, 999999))
+    noise11 = PerlinNoise(octaves = 24, seed = noise0.randint( 0, 999999))
+    noise20 = PerlinNoise(octaves = 12, seed = noise0.randint( 0, 999999))
+    noise21 = PerlinNoise(octaves = 24, seed = noise0.randint( 0, 999999))
+    noise30 = PerlinNoise(octaves = 12, seed = noise0.randint( 0, 999999))
+    noise31 = PerlinNoise(octaves = 24, seed = noise0.randint( 0, 999999))
 
     for y in range(imgHeight):
-        print(str(y * 100/imgHeight) + "%")
+        print(str(int(y * 10000/imgHeight)/100) + "%")
         for x in range(imgWidth):
             for i in range(3):
                 xPos = (i * imgWidth + x)/(3 * imgWidth)
                 yPos = (i * imgHeight + y)/(3 * imgHeight)
-                noise_val =         noise1([xPos, yPos])
-                pix[y,x,i] = noise_val * 20 - 10 + pix[y,x,i]
-    
-    data = list(tuple(pixel) for pixel in pix)
-    imageS0.putdata(data,1,0)
+                noise_val0 =          noise00([xPos, yPos])
+                noise_val0 += 0.5 *   noise01([xPos, yPos])
+                noise_val1 =          noise10([xPos, yPos])
+                noise_val1 += 0.5 *   noise11([xPos, yPos])
+                noise_val2 =          noise20([xPos, yPos])
+                noise_val2 += 0.5 *   noise21([xPos, yPos])
+                noise_val3 =          noise30([xPos, yPos])
+                noise_val3 += 0.5 *   noise31([xPos, yPos])
+                pix1[y,x,i] = int( pix0[max(0,y-1),x,i] / 8 + pix0[y,max(0,x-1),i] / 8 + pix0[y,x,i] / 2 + pix0[y,min(imgWidth-1,x+1),i] / 8 + pix0[min(imgHeight-1,y+1),x,i] / 8)
+                pix2[y,x,i] = min( max( noise_val0  *  100 - 50 + pix0[y,x,i], 0), 255)
+                pix3[y,x,i] = min( max( noise_val1  *  100 - 50 + pix0[y,x,i], 0), 255)
+                pix4[y,x,i] = min( max( noise_val2  *  100 - 50 + pix0[y,x,i], 0), 255)
+                pix5[y,x,i] = min( max( noise_val3  *  100 - 50 + pix0[y,x,i], 0), 255)
+                pix6[y,x,i] = min( max( noise0.randint(-50,50) + pix0[y,x,i], 0), 255)
+                pix7[y,x,i] = min( max( noise0.randint(-50,50) + pix0[y,x,i], 0), 255)
+                pix8[y,x,i] = min( max( noise0.randint(-50,50) + pix0[y,x,i], 0), 255)
+                pix9[y,x,i] = min( max( noise0.randint(-50,50) + pix0[y,x,i], 0), 255)
 
-    imageS0 = imageS0.resize((scaleHeight,int(scaleHeight*verhältnis)))
-    outputPath = os.path.join(outputPath,dictionarryName + "_" + str(testIndex.getNextIndex(dictionarryName)) + ".jpg")
-    imageS0.save(outputPath)
-    testIndex.addData(name=dictionarryName,dataPath=outputPath)
-
-def doImage(inputPath,outputPath,scaleHeight,verhältnis,dictionarryName):
-    print("main start")
-    doMainImage(inputPath=inputPath,outputPath=outputPath,scaleHeight=scaleHeight,verhältnis=verhältnis,dictionarryName=dictionarryName)
-    print("main Done")
-    print("pixelation start")
-    doPixelation(inputPath=inputPath,outputPath=outputPath,scaleHeight=scaleHeight,verhältnis=verhältnis,dictionarryName=dictionarryName)
-    print("pixelation Done")
+    saveImage(image=Image.fromarray(pix1),dirName=dictionarryName,outPath=outputPath)
+    saveImage(image=Image.fromarray(pix2),dirName=dictionarryName,outPath=outputPath)
+    saveImage(image=Image.fromarray(pix3),dirName=dictionarryName,outPath=outputPath)
+    saveImage(image=Image.fromarray(pix4),dirName=dictionarryName,outPath=outputPath)
+    saveImage(image=Image.fromarray(pix5),dirName=dictionarryName,outPath=outputPath)
+    saveImage(image=Image.fromarray(pix6),dirName=dictionarryName,outPath=outputPath)
+    saveImage(image=Image.fromarray(pix7),dirName=dictionarryName,outPath=outputPath)
+    saveImage(image=Image.fromarray(pix8),dirName=dictionarryName,outPath=outputPath)
+    saveImage(image=Image.fromarray(pix9),dirName=dictionarryName,outPath=outputPath)
 
 def main():
 
@@ -92,9 +121,9 @@ def main():
     verhältnis = 3510.0/2550.0
     scaleHeight = 300
 
-    for i in range(1,2):#len(sys.argv)):
-        dictionarryName = "Tom" # input("von wem ist die schrift (" + sys.argv[i] + "): ")
-        inputPath = "F:\Python\InteligenteSysteme\HandschriftenErkennung\BildSpeicherer\handschrift_mischa.jpg" # sys.argv[i]
+    for i in range(1,len(sys.argv)):
+        dictionarryName = input("von wem ist die schrift (" + sys.argv[i] + "): ")
+        inputPath = sys.argv[i]
         if os.path.isdir(inputPath):
             for filename in os.listdir(inputPath):
                 if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
