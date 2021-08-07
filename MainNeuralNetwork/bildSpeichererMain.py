@@ -10,6 +10,8 @@ from perlin_noise import PerlinNoise
 
 import json
 
+import subprocess
+
 class IndexOrganizer:
     def __init__(self,path):
         self.path = path
@@ -145,11 +147,14 @@ def main():
     for i in range(1,len(sys.argv)):
         dictionarryName = input("von wem ist die schrift (" + sys.argv[i] + "): ")
         inputPath = sys.argv[i]
+        print(inputPath)
+        end = input("press any key to continue\n")
         if os.path.isdir(inputPath):
             for filename in os.listdir(inputPath):
                 if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
-                    doImage(inputPath=os.path.join(inputPath,filename),outputPath=outputPath,scaleHeight=scaleHeight,verhältnis=verhältnis,dictionarryName=dictionarryName)
-            testIndex.save()
+                    subprocess.run("")
+                    #doImage(inputPath=os.path.join(inputPath,filename),outputPath=outputPath,scaleHeight=scaleHeight,verhältnis=verhältnis,dictionarryName=dictionarryName)
+            #testIndex.save()
         elif os.path.isfile(inputPath):
             doImage(inputPath=inputPath,outputPath=outputPath,scaleHeight=scaleHeight,verhältnis=verhältnis,dictionarryName=dictionarryName)
             testIndex.save()

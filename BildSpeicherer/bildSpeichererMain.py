@@ -10,11 +10,15 @@ from perlin_noise import PerlinNoise
 
 import json
 
+import time
+
 class IndexOrganizer:
     def __init__(self,path):
         self.path = path
-        if os.path.exists(path):
-            f = open(path, "r")
+
+    def load(self):
+        if os.path.exists(self.path):
+            f = open(self.path, "r")
             lines = f.readlines()
             f.close()
             myString = ""
@@ -42,8 +46,11 @@ class IndexOrganizer:
 
 testIndex = IndexOrganizer(os.path.join(os.getcwd(),"TestDaten.json"))
     
-def saveImage(image,dirName,outPath):
-    outputPath = os.path.join(outPath,dirName + "_" + str(testIndex.getNextIndex(dirName)) + ".jpg")
+def saveImage(image,dirName,outPath,IsOriginal=False):
+    if IsOriginal:
+        outputPath = os.path.join(outPath,"O" + dirName + "_" + str(testIndex.getNextIndex(dirName)) + ".jpg")
+    else:
+        outputPath = os.path.join(outPath,"N" + dirName + "_" + str(testIndex.getNextIndex(dirName)) + ".jpg")
     image.save(outputPath)
     testIndex.addData(name=dirName,dataPath=outputPath)
 
@@ -83,7 +90,9 @@ def doImage(inputPath,outputPath,scaleHeight,verhältnis,dictionarryName):
 
     pix0 = np.array(imageS0)
     imageS0 = Image.fromarray(pix0)
-    saveImage(image=imageS0,dirName=dictionarryName,outPath=outputPath)
+    testIndex.load()
+    saveImage(image=imageS0,dirName=dictionarryName,outPath=outputPath,IsOriginal=True)
+    testIndex.save()
 
     pix1 = np.array(pix0)
     pix2 = np.array(pix0)
@@ -122,18 +131,21 @@ def doImage(inputPath,outputPath,scaleHeight,verhältnis,dictionarryName):
         #    None
         print("thread done: " + str(t))
 
-    saveImage(image=Image.fromarray(pix1),dirName=dictionarryName,outPath=outputPath)
-    saveImage(image=Image.fromarray(pix2),dirName=dictionarryName,outPath=outputPath)
-    saveImage(image=Image.fromarray(pix3),dirName=dictionarryName,outPath=outputPath)
-    saveImage(image=Image.fromarray(pix4),dirName=dictionarryName,outPath=outputPath)
-    saveImage(image=Image.fromarray(pix5),dirName=dictionarryName,outPath=outputPath)
-    saveImage(image=Image.fromarray(pix6),dirName=dictionarryName,outPath=outputPath)
-    saveImage(image=Image.fromarray(pix7),dirName=dictionarryName,outPath=outputPath)
-    saveImage(image=Image.fromarray(pix8),dirName=dictionarryName,outPath=outputPath)
-    saveImage(image=Image.fromarray(pix9),dirName=dictionarryName,outPath=outputPath)
+    testIndex.load()
+
+    saveImage(image=Image.fromarray(pix1),dirName=dictionarryName,outPath=outputPath,IsOriginal=False)
+    saveImage(image=Image.fromarray(pix2),dirName=dictionarryName,outPath=outputPath,IsOriginal=False)
+    saveImage(image=Image.fromarray(pix3),dirName=dictionarryName,outPath=outputPath,IsOriginal=False)
+    saveImage(image=Image.fromarray(pix4),dirName=dictionarryName,outPath=outputPath,IsOriginal=False)
+    saveImage(image=Image.fromarray(pix5),dirName=dictionarryName,outPath=outputPath,IsOriginal=False)
+    saveImage(image=Image.fromarray(pix6),dirName=dictionarryName,outPath=outputPath,IsOriginal=False)
+    saveImage(image=Image.fromarray(pix7),dirName=dictionarryName,outPath=outputPath,IsOriginal=False)
+    saveImage(image=Image.fromarray(pix8),dirName=dictionarryName,outPath=outputPath,IsOriginal=False)
+    saveImage(image=Image.fromarray(pix9),dirName=dictionarryName,outPath=outputPath,IsOriginal=False)
+
+    testIndex.save()
 
 def main():
-
     outputPath = os.path.join(os.getcwd(),"Bilder\\")
     if not os.path.exists(outputPath):
         os.mkdir(outputPath)
@@ -141,21 +153,28 @@ def main():
     verhältnis = 3510.0/2550.0
     scaleHeight = 300
 
+    selfPath = sys.argv[0]
 
-    for i in range(1,len(sys.argv)):
-        dictionarryName = input("von wem ist die schrift (" + sys.argv[i] + "): ")
-        inputPath = sys.argv[i]
-        if os.path.isdir(inputPath):
-            for filename in os.listdir(inputPath):
-                if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
-                    doImage(inputPath=os.path.join(inputPath,filename),outputPath=outputPath,scaleHeight=scaleHeight,verhältnis=verhältnis,dictionarryName=dictionarryName)
-            testIndex.save()
-        elif os.path.isfile(inputPath):
-            doImage(inputPath=inputPath,outputPath=outputPath,scaleHeight=scaleHeight,verhältnis=verhältnis,dictionarryName=dictionarryName)
-            testIndex.save()
-        else:
-            print("Nöööööö")
-    end = input("press any key to exit\n")
+    if os.path.isdir(sys.argv[1]) or os.path.isfile(sys.argv[1]):
+        for i in range(1,len(sys.argv)):
+            inputPath = sys.argv[i]
+            if os.path.isdir(inputPath):
+                dictionarryName = input("von wem ist die schrift (" + sys.argv[i] + "): ")
+                for filename in os.listdir(inputPath):
+                    if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
+                        time.sleep(1)
+                        os.system("start cmd /K python " + selfPath + " _" + dictionarryName + " " + inputPath + "\\" + filename)
+            elif os.path.isfile(inputPath):
+                dictionarryName = input("von wem ist die schrift (" + sys.argv[i] + "): ")
+                doImage(inputPath=inputPath,outputPath=outputPath,scaleHeight=scaleHeight,verhältnis=verhältnis,dictionarryName=dictionarryName)
+                end = input("press any key to exit\n")
+            else:
+                print("Nöööööö")
+                end = input("press any key to exit\n")
+    else:
+        inputPath = sys.argv[2]
+        dictionarryName = sys.argv[1]
+        doImage(inputPath=inputPath,outputPath=outputPath,scaleHeight=scaleHeight,verhältnis=verhältnis,dictionarryName=dictionarryName)
 
 if __name__=="__main__":
     main()

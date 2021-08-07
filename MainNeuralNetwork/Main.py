@@ -47,7 +47,6 @@ class DataCapsel:
 
 
 
-
 def readIndex(data):
     indexOrg = IndexOrganizer(os.path.join(os.getcwd(),data.indexPath))
     if not indexOrg.hasTag(data.lableNamen):
